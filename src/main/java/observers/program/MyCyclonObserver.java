@@ -1,5 +1,6 @@
 package observers.program;
 
+import cyclon.Cyclon;
 import observers.DictGraph;
 import observers.ObserverProgram;
 import peersim.core.Network;
@@ -25,7 +26,7 @@ public class MyCyclonObserver implements ObserverProgram {
     }
 
     public void observe(long currentTick, DictGraph observer){
-        System.out.println(observer.nodes.get(Network.get(0).getID()).neighbors);
+        System.out.println(observer.nodes.get((Cyclon) Network.get(0).getID()));
     }
 
     private int getRandomFromPartialView(){return 0;}
