@@ -7,8 +7,9 @@ from statistics import mean
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html
 from scipy.stats import chi2
 
+################################################################################
 
-# Une proba de 90% avec 20 degrés de liberté
+# Une proba de 90% avec 20 degrés de liberté :
 #print( chi2.ppf(0.05, 20) )
 
 #N=nb cycle, k,=suffleinterval,IDpeer = un pair (, vue)
@@ -119,7 +120,7 @@ if len(sys.argv) == 1:
 else:
 	foldername = sys.argv[1]
 
-ddl = 5000 # TODO ?????????
+ddl = 1000 - 1 # XXX ?????????
 
 dist_theo = chi2.ppf(0.10, ddl)
 dist_values = []
@@ -133,8 +134,6 @@ print('')
 
 shuffle_intervals = []
 
-all_values = []
-
 print(str(len(os.listdir(foldername))) + " files in this folder. Only CSV files will be read.")
 for filename in os.listdir(foldername):
 	if filename.endswith('.csv'):
@@ -144,7 +143,6 @@ for filename in os.listdir(foldername):
 		shuffle_intervals.append(ts.shuffle_interval)
 #		dist_theo.append(???)
 #		indep_theo.append(???)
-#		all_values.append(ts.sample.tolist())
 
 print('')
 print("Theoric distribution value: " + str(dist_theo))
@@ -158,32 +156,25 @@ print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
 dist_theo = [dist_theo] * len(dist_values)
 indep_theo = [indep_theo] * len(indep_values)
 
-#annexe_data = pandas.DataFrame(data=all_values)
+print("***********************************************************************")
 
-#print(all_values)
+plt.plot(shuffle_intervals, dist_theo)
+plt.plot(shuffle_intervals, dist_values, 'ro')
+plt.axis([0, 40, 0, 2000])
+plt.legend()
+plt.title("Test de distribution/homogénéité")
+plt.xlabel("Nombre de shuffles entre chaque getPeer")
+plt.ylabel("Valeur statistique")
+plt.show()
 
-#print("***********************************************************************")
-
-#fig, ax = plt.subplots(figsize=(10,10))
-#ax.plot(shuffle_intervals, dist_theo, 'g', label="Valeur limite du test")
-#annexe_data.boxplot(ax=ax)
-##annexe_data.boxplot(column='DIST_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
-#plt.suptitle("")
-#plt.legend()
-#plt.title("Test de distribution/homogénéité")
-#plt.xlabel("Nombre de shuffles entre chaque getPeer")
-#plt.ylabel("Valeur statistique")
-#plt.show()
-
-#fig, ax = plt.subplots(figsize=(10,10))
-#ax.plot(shuffle_intervals, indep_theo, 'g', label="Valeur limite du test")
-#annexe_data.boxplot(column='INDEP_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
-#plt.suptitle("")
-#plt.legend()
-#plt.title("Test d'indépendance")
-#plt.xlabel("Nombre de shuffles entre chaque getPeer")
-#plt.ylabel("Valeur statistique")
-#plt.show()
+plt.plot(shuffle_intervals, indep_theo)
+plt.plot(shuffle_intervals, indep_values, 'ro')
+plt.axis([0, 40, 0, 1000000])
+plt.legend()
+plt.title("Test d'indépendance")
+plt.xlabel("Nombre de shuffles entre chaque getPeer")
+plt.ylabel("Valeur statistique")
+plt.show()
 
 
 
