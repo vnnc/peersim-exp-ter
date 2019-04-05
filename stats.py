@@ -22,7 +22,7 @@ class TestSeries:
 		filedata = pandas.read_csv(path,sep=',')
 		self.net_size = filedata['NETSIZE'][0]
 		self.nb_cycles = filedata['NB_CYCLES'][0]
-		self.suffle_interval = filedata['SHUFFLE_INTERVAL'][0] # varie d'un fichier à l'autre
+		self.shuffle_interval = filedata['SHUFFLE_INTERVAL'][0] # varie d'un fichier à l'autre
 		self.sample = filedata['PEERID'] # varie d'une ligne à l'autre
 
 	def testDistribution(self):
@@ -38,7 +38,7 @@ class TestSeries:
 			tmp = (tmp * tmp) / expectedCount
 			res += tmp
 		
-		print("Computed chi² value (Distribution): " + str(res))
+		print("Computed chi² distribution value: " + str(res))
 		return res
 
 	def testIndependence(self):
@@ -107,7 +107,7 @@ class TestSeries:
 				if expectedCount != 0:
 					res += (observedCount - expectedCount) * (observedCount - expectedCount) / expectedCount;
 		
-		print("Computed chi² value (Independence): " + str(res))
+		print("Computed chi² independence value: " + str(res))
 		return res
 
 ################################################################################
@@ -131,11 +131,16 @@ print("Theoric distribution value: " + str(dist_theo))
 print("Theoric independance value: " + str(indep_theo))
 print('')
 
+shuffle_intervals = []
+
 for filename in os.listdir(foldername):
 	if filename.endswith('.csv'):
 		ts = TestSeries(foldername + filename)
 		dist_values.append(ts.testDistribution())
 		indep_values.append(ts.testIndependence())
+		shuffle_intervals.append(ts.shuffle_interval)
+#		dist_theo.append(???)
+#		indep_theo.append(???)
 
 print('')
 print("Theoric distribution value: " + str(dist_theo))
@@ -144,26 +149,28 @@ print('')
 print("Theoric independance value: " + str(indep_theo))
 print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
 
+dist_theo = [dist_theo] * len(dist_values)
+indep_theo = [indep_theo] * len(indep_values)
 
 # TODO faire des graphes
 
 #fig, ax = plt.subplots(figsize=(10,10))
-#thlimit = ax.plot(shuffles, dist_theo, 'g', label="Valeur limite du test")
-#boxes = annexe_data.boxplot(column='DIST_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
+#ax.plot(shuffle_intervals, dist_theo, 'g', label="Valeur limite du test")
+#annexe_data.boxplot(column='DIST_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
 #plt.suptitle("")
 #plt.legend()
 #plt.title("Test de distribution")
-#plt.xlabel("Shuffles entre getPeer")
+#plt.xlabel("Nombre de shuffles entre chaque getPeer")
 #plt.ylabel("Valeur statistique")
 #plt.show()
 
 #fig, ax = plt.subplots(figsize=(10,10))
-#thlimit = ax.plot(shuffles, indep_theo, 'g', label="Valeur limite du test")
-#boxes = annexe_data.boxplot(column='INDEP_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
+#ax.plot(shuffle_intervals, indep_theo, 'g', label="Valeur limite du test")
+#annexe_data.boxplot(column='INDEP_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
 #plt.suptitle("")
 #plt.legend()
 #plt.title("Test d'indépendance")
-#plt.xlabel("Shuffles entre getPeer")
+#plt.xlabel("Nombre de shuffles entre chaque getPeer")
 #plt.ylabel("Valeur statistique")
 #plt.show()
 
