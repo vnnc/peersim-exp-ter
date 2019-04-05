@@ -133,6 +133,9 @@ print('')
 
 shuffle_intervals = []
 
+all_values = []
+
+print(str(len(os.listdir(foldername))) + " files in this folder. Only CSV files will be read.")
 for filename in os.listdir(foldername):
 	if filename.endswith('.csv'):
 		ts = TestSeries(foldername + filename)
@@ -141,6 +144,7 @@ for filename in os.listdir(foldername):
 		shuffle_intervals.append(ts.shuffle_interval)
 #		dist_theo.append(???)
 #		indep_theo.append(???)
+#		all_values.append(ts.sample.tolist())
 
 print('')
 print("Theoric distribution value: " + str(dist_theo))
@@ -149,17 +153,24 @@ print('')
 print("Theoric independance value: " + str(indep_theo))
 print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
 
+# Tracer les graphes
+
 dist_theo = [dist_theo] * len(dist_values)
 indep_theo = [indep_theo] * len(indep_values)
 
-# TODO faire des graphes
+#annexe_data = pandas.DataFrame(data=all_values)
+
+#print(all_values)
+
+#print("***********************************************************************")
 
 #fig, ax = plt.subplots(figsize=(10,10))
 #ax.plot(shuffle_intervals, dist_theo, 'g', label="Valeur limite du test")
-#annexe_data.boxplot(column='DIST_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
+#annexe_data.boxplot(ax=ax)
+##annexe_data.boxplot(column='DIST_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
 #plt.suptitle("")
 #plt.legend()
-#plt.title("Test de distribution")
+#plt.title("Test de distribution/homogénéité")
 #plt.xlabel("Nombre de shuffles entre chaque getPeer")
 #plt.ylabel("Valeur statistique")
 #plt.show()
