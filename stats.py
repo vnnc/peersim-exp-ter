@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os, sys, csv, pandas
-
+import matplotlib.pyplot as plt
 from statistics import mean
 
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html
@@ -22,11 +22,8 @@ class TestSeries:
 		filedata = pandas.read_csv(path,sep=',')
 		self.net_size = filedata['NETSIZE'][0]
 		self.nb_cycles = filedata['NB_CYCLES'][0]
-		self.suffle_interval = filedata['SHUFFLE_INTERVAL'][0] # seul truc qui varie
-		
-		self.sample = filedata['PEERID']
-		
-		
+		self.suffle_interval = filedata['SHUFFLE_INTERVAL'][0] # varie d'un fichier à l'autre
+		self.sample = filedata['PEERID'] # varie d'une ligne à l'autre
 
 	def testDistribution(self):
 		expectedCount = float(len(self.sample)/(self.net_size-1))
@@ -132,24 +129,27 @@ indep_values = []
 
 print("Theoric distribution value: " + str(dist_theo))
 print("Theoric independance value: " + str(indep_theo))
+print('')
 
 for filename in os.listdir(foldername):
 	if filename.endswith('.csv'):
 		ts = TestSeries(foldername + filename)
 		dist_values.append(ts.testDistribution())
 		indep_values.append(ts.testIndependence())
-		
-		
 
+print('')
+print("Theoric distribution value: " + str(dist_theo))
 print("Mean Χ² statistic for distribution: " + str(mean(dist_values)))
+print('')
+print("Theoric independance value: " + str(indep_theo))
 print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
 
 
 # TODO faire des graphes
 
-#fig,ax = plt.subplots(figsize=(10,10))
-#thlimit = ax.plot(shuffles,distritheo,"g",label="Valeur limite du test")
-#boxes = annexe_data.boxplot(column="DIST_VALUE",by="SHUFFLE_INTERVAL",ax=ax)
+#fig, ax = plt.subplots(figsize=(10,10))
+#thlimit = ax.plot(shuffles, dist_theo, 'g', label="Valeur limite du test")
+#boxes = annexe_data.boxplot(column='DIST_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
 #plt.suptitle("")
 #plt.legend()
 #plt.title("Test de distribution")
@@ -157,9 +157,9 @@ print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
 #plt.ylabel("Valeur statistique")
 #plt.show()
 
-#fig,ax = plt.subplots(figsize=(10,10))
-#thlimit = ax.plot(shuffles,indeptheo,"g",label="Valeur limite du test")
-#boxes = annexe_data.boxplot(column="INDEP_VALUE",by="SHUFFLE_INTERVAL",ax=ax)
+#fig, ax = plt.subplots(figsize=(10,10))
+#thlimit = ax.plot(shuffles, indep_theo, 'g', label="Valeur limite du test")
+#boxes = annexe_data.boxplot(column='INDEP_VALUE', by='SHUFFLE_INTERVAL', ax=ax)
 #plt.suptitle("")
 #plt.legend()
 #plt.title("Test d'indépendance")
