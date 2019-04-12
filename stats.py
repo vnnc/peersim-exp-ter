@@ -10,9 +10,7 @@ from scipy.stats import chi2
 ################################################################################
 
 # Une proba de 90% avec 20 degrés de liberté :
-#print( chi2.ppf(0.05, 20) )
-
-#N=nb cycle, k,=suffleinterval,IDpeer = un pair (, vue)
+#print( chi2.ppf(0.90, 20) )
 
 #  NETSIZE,NB_CYCLES,SHUFFLE_INTERVAL,PEERID
 
@@ -83,7 +81,7 @@ class TestSeries:
 				countsPaires[xyPaire] = prev + 1
 			else:
 				countsPaires[xyPaire] = 1
-			
+		
 		res = 0.0
 		pairCount = len(X)
 		
@@ -123,11 +121,9 @@ if len(sys.argv) == 1:
 else:
 	foldername = sys.argv[1]
 
-
 dist_values = []
 indep_values = []
 shuffle_intervals = []
-
 
 print(str(len(os.listdir(foldername))) + " files in this folder. Only CSV files will be read.")
 for filename in os.listdir(foldername):
@@ -136,15 +132,14 @@ for filename in os.listdir(foldername):
 		dist_values.append(ts.testDistribution())
 		indep_values.append(ts.testIndependence())
 		shuffle_intervals.append(ts.shuffle_interval)
-#		dist_theo.append(???)
-#		indep_theo.append(???)
-		
+
 ddl = ts.getDegreeOfFreedom()
 
 dist_theo = chi2.ppf(0.90, ddl)
+indep_theo = chi2.ppf(0.90, ddl * ddl)
 
-
-indep_theo = chi2.ppf(0.90, ddl * ddl) # FIXME non
+dist_y_max = max(dist_theo, max(dist_values)) * 1.05
+indep_y_max = max(indep_theo, max(indep_values)) * 1.05
 
 print('')
 print("Theoric distribution value: " + str(dist_theo))
@@ -162,7 +157,7 @@ print("***********************************************************************")
 
 plt.plot(shuffle_intervals, dist_theo)
 plt.plot(shuffle_intervals, dist_values, 'ro')
-plt.axis([0, 40, 0, 2000])
+plt.axis([0, 40, 0, dist_y_max])
 plt.legend()
 plt.title("Test de distribution/homogénéité")
 plt.xlabel("Nombre de shuffles entre chaque getPeer")
@@ -171,13 +166,12 @@ plt.show()
 
 plt.plot(shuffle_intervals, indep_theo)
 plt.plot(shuffle_intervals, indep_values, 'ro')
-plt.axis([0, 40, 0, 1000000])
+plt.axis([0, 40, 0, indep_y_max])
 plt.legend()
 plt.title("Test d'indépendance")
 plt.xlabel("Nombre de shuffles entre chaque getPeer")
 plt.ylabel("Valeur statistique")
 plt.show()
-
 
 
 
