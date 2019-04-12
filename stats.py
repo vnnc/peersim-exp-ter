@@ -122,10 +122,10 @@ else:
 
 ddl = 1000 - 1 # XXX ?????????
 
-dist_theo = chi2.ppf(0.10, ddl)
+dist_theo = chi2.ppf(0.90, ddl)
 dist_values = []
 
-indep_theo = chi2.ppf(0.10, ddl * ddl) # FIXME non
+indep_theo = chi2.ppf(0.90, ddl * ddl) # FIXME non
 indep_values = []
 
 print("Theoric distribution value: " + str(dist_theo))
