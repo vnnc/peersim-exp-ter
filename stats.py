@@ -42,6 +42,9 @@ class TestSeries:
 		print("Computed chi² distribution value: " + str(res))
 		return res
 
+	def getDegreeOfFreedom(self):
+		return self.net_size-1
+
 	def testIndependence(self):
 		# .......
 		X = []
@@ -120,19 +123,11 @@ if len(sys.argv) == 1:
 else:
 	foldername = sys.argv[1]
 
-ddl = 1000 - 1 # XXX ?????????
 
-dist_theo = chi2.ppf(0.90, ddl)
 dist_values = []
-
-indep_theo = chi2.ppf(0.90, ddl * ddl) # FIXME non
 indep_values = []
-
-print("Theoric distribution value: " + str(dist_theo))
-print("Theoric independance value: " + str(indep_theo))
-print('')
-
 shuffle_intervals = []
+
 
 print(str(len(os.listdir(foldername))) + " files in this folder. Only CSV files will be read.")
 for filename in os.listdir(foldername):
@@ -143,6 +138,13 @@ for filename in os.listdir(foldername):
 		shuffle_intervals.append(ts.shuffle_interval)
 #		dist_theo.append(???)
 #		indep_theo.append(???)
+		
+ddl = ts.getDegreeOfFreedom()
+
+dist_theo = chi2.ppf(0.90, ddl)
+
+
+indep_theo = chi2.ppf(0.90, ddl * ddl) # FIXME non
 
 print('')
 print("Theoric distribution value: " + str(dist_theo))
