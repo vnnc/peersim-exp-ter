@@ -38,9 +38,10 @@ init.sch.randstart
 
 ##### Controls #####
 control.observer observers.Observer
-control.observer.program SprayObserver1
+control.observer.program MySprayObserver
 control.observer.protocol myprotocol
-control.observer.shuffleInterval 1
+control.observer.myparameterString meow
+control.observer.myparameterInt 10
 control.observer.end FINAL
 control.observer.step 1
 

@@ -1,19 +1,20 @@
-import cyclon.Cyclon;
 import observers.DictGraph;
 import observers.ObserverProgram;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
+import spray.Spray;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-public class CyclonObserver1 implements ObserverProgram {
+import static java.lang.System.exit;
+
+public class SprayObserver1 implements ObserverProgram {
 
     private boolean initialized = false;
     private FileWriter fileWriter;
@@ -23,10 +24,11 @@ public class CyclonObserver1 implements ObserverProgram {
     private int nbCycles = Configuration.getInt("CYCLES");
     private int shuffleInterval;
 
-    public CyclonObserver1(String prefix){
+    public SprayObserver1(String prefix) {
         this.shuffleInterval = Configuration.getInt(prefix+".shuffleInterval");
     }
 
+    @Override
     public void tick(long currentTick, DictGraph observer) {
         if(currentTick == 0){
             try {
@@ -46,23 +48,23 @@ public class CyclonObserver1 implements ObserverProgram {
 
     private void checkInit(DictGraph observer)
     {
-        List<Node> partialView = ((Cyclon) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
+        List<Node> partialView = ((Spray) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
         if(partialView.size() == cacheSize){
             initialized = true;
         }
     }
 
     public void observe(long currentTick, DictGraph observer){
-        List<Node> partialView = ((Cyclon) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
+        List<Node> partialView = ((Spray) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
         int randomPeer = getRandomFromNodes(partialView);
 
         if(currentTick%shuffleInterval == 0)
-        try {
-            writer.write(networkSize+","+nbCycles+","+shuffleInterval+","+randomPeer);
-            writer.write(System.getProperty("line.separator"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                writer.write(networkSize+","+nbCycles+","+shuffleInterval+","+randomPeer);
+                writer.write(System.getProperty("line.separator"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     private int getRandomFromNodes(List<Node> nodes){
