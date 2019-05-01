@@ -49,7 +49,7 @@ public class SprayObserver1 implements ObserverProgram {
     private void checkInit(DictGraph observer)
     {
         List<Node> partialView = ((Spray) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
-        if(partialView.size() == cacheSize){
+        if(partialView.size() > 1){
             initialized = true;
         }
     }
@@ -58,13 +58,14 @@ public class SprayObserver1 implements ObserverProgram {
         List<Node> partialView = ((Spray) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
         int randomPeer = getRandomFromNodes(partialView);
 
-        if(currentTick%shuffleInterval == 0)
+        if(currentTick%shuffleInterval == 0) {
             try {
-                writer.write(networkSize+","+nbCycles+","+shuffleInterval+","+randomPeer);
+                writer.write(networkSize + "," + nbCycles + "," + shuffleInterval + "," + randomPeer);
                 writer.write(System.getProperty("line.separator"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
     }
 
     private int getRandomFromNodes(List<Node> nodes){
