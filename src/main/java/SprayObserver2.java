@@ -95,6 +95,7 @@ public class SprayObserver2 implements ObserverProgram {
     }
 
     public void init(DictGraph observer) throws IOException {
+        previousView = new ArrayList<>();
         Long timestamp = new Date().getTime();
         this.fileWriter = new FileWriter("samples/samples_"+timestamp+".csv",false);
         this.writer = new BufferedWriter(fileWriter);
