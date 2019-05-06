@@ -33,9 +33,11 @@ class TestSeries:
 		
 		res = 0.0
 		for e in counts:
-			tmp = e - expectedCount
-			tmp = (tmp * tmp) / expectedCount
-			res += tmp
+#			print("Observed: "+str(e)+" Expected: "+str(expectedCount))
+			if e!=0:
+				tmp = e - expectedCount
+				tmp = (tmp * tmp) / expectedCount
+				res += tmp
 		
 		print("Computed chi² distribution value: " + str(res))
 		return res
@@ -45,69 +47,48 @@ class TestSeries:
 
 	def testIndependence(self):
 		# .......
-		X = []
-		Y = []
-		countsPaires = {}
-		countsX = {}
-		countsY = {}
+		X = self.sample[0:][::2]
+		Y = self.sample[1:][::2]
 		
-		i = 0
-		while i < len(self.sample) - 1:
-			newX = self.sample[i]
-			newY = self.sample[i+1]
-			
-			X.append(newX)
-			Y.append(newY)
-			
-			i = i+2
-			
-			newX = str(newX)
-			newY = str(newY)
-			if newX in countsX:
-				prev = countsX[newX]
-				countsX[newX] = prev + 1
-			else:
-				countsX[newX] = 1
-			
-			if newY in countsY:
-				prev = countsY[newY]
-				countsY[newY] = prev + 1
-			else:
-				countsY[newY] = 1
-			
-			xyPaire = newX + ',' + newY
-			if xyPaire in countsPaires:
-				prev = countsPaires[xyPaire]
-				countsPaires[xyPaire] = prev + 1
-			else:
-				countsPaires[xyPaire] = 1
+		XY = [(e,Y[i+1]) if (i+1)<=(Y.shape[0]*2) else (0,0) for i,e in X.iteritems()]
+		
+		X = pandas.DataFrame(X).reset_index().drop(columns=["index"])
+		Y = pandas.DataFrame(Y).reset_index().drop(columns=["index"])
+		
+		countsX = X.groupby(["PEERID"])
+		countsY = Y.groupby(["PEERID"])
+		
+		XY = pandas.DataFrame(XY,columns=["eX","eY"])
+		countsXY = XY.groupby(["eX","eY"])
 		
 		res = 0.0
 		pairCount = len(X)
 		
 		for i in range(1, self.net_size):
 			for j in range(1, self.net_size):
-				obsPaire = str(i) + ', ' + str(j)
+				obsPaire = (i,j)
 				
-				if obsPaire in countsPaires:
-					observedCount = countsPaires[str(obsPaire)]
+				if obsPaire in countsXY.groups:
+					observedCount = countsXY.get_group(obsPaire).shape[0]
 				else:
 					observedCount = 0.0
 				
-				if str(i) in countsX:
-					observedCount1 = countsX[str(i)]
+				if i in countsX.groups:
+					observedCount1 = countsX.get_group(i).shape[0]
 				else:
 					observedCount1 = 0.0
 				
-				if str(j) in countsY:
-					observedCount2 = countsY[str(j)]
+				if j in countsY.groups:
+					observedCount2 = countsY.get_group(j).shape[0]
 				else:
 					observedCount2 = 0.0
 				
 				expectedCount = (observedCount1 * observedCount2)/pairCount;
 				
 				if expectedCount != 0:
-					res += (observedCount - expectedCount) * (observedCount - expectedCount) / expectedCount;
+					if observedCount!=0:
+#						print("Observed: "+str(observedCount)+" Expected: "+str(expectedCount))
+						res += (observedCount - expectedCount) * (observedCount - expectedCount) / expectedCount;
 		
 		print("Computed chi² independence value: " + str(res))
 		return res
