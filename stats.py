@@ -116,27 +116,39 @@ for filename in os.listdir(foldername):
 
 ddl = ts.getDegreeOfFreedom()
 
-dist_theo = chi2.ppf(0.90, ddl)
-indep_theo = chi2.ppf(0.90, ddl * ddl)
+dist_theo90 = chi2.ppf(0.10, ddl)
+dist_theo95 = chi2.ppf(0.05, ddl)
+dist_theo99 = chi2.ppf(0.01, ddl)
+indep_theo90 = chi2.ppf(0.10, ddl * ddl)
+indep_theo95 = chi2.ppf(0.05, ddl * ddl)
+indep_theo99 = chi2.ppf(0.01, ddl * ddl)
 
-dist_y_max = max(dist_theo, max(dist_values)) * 1.05
-indep_y_max = max(indep_theo, max(indep_values)) * 1.05
+
+dist_y_max = max(dist_theo95, max(dist_values)) * 1.05
+indep_y_max = max(indep_theo95, max(indep_values)) * 1.05
 
 print('')
-print("Theoric distribution value: " + str(dist_theo))
+print("Theoric distribution value (95%): " + str(dist_theo95))
 print("Mean Χ² statistic for distribution: " + str(mean(dist_values)))
 print('')
-print("Theoric independance value: " + str(indep_theo))
+print("Theoric independance value (95%): " + str(indep_theo95))
 print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
 
 # Tracer les graphes
 
-dist_theo = [dist_theo] * len(dist_values)
-indep_theo = [indep_theo] * len(indep_values)
+dist_theo90 = [dist_theo90] * len(dist_values)
+dist_theo95 = [dist_theo95] * len(dist_values)
+dist_theo99 = [dist_theo99] * len(dist_values)
+indep_theo90 = [indep_theo90] * len(indep_values)
+indep_theo95 = [indep_theo95] * len(indep_values)
+indep_theo99 = [indep_theo99] * len(indep_values)
+
 
 print("***********************************************************************")
 
-plt.plot(shuffle_intervals, dist_theo)
+plt.plot(shuffle_intervals, dist_theo90,"-b",label="90%")
+plt.plot(shuffle_intervals, dist_theo95,"-g",label="95%")
+plt.plot(shuffle_intervals, dist_theo99,"-k",label="99%")
 plt.plot(shuffle_intervals, dist_values, 'ro')
 plt.axis([0, 40, 0, dist_y_max])
 plt.legend()
@@ -145,7 +157,9 @@ plt.xlabel("Nombre de shuffles entre chaque getPeer")
 plt.ylabel("Valeur statistique")
 plt.show()
 
-plt.plot(shuffle_intervals, indep_theo)
+plt.plot(shuffle_intervals, indep_theo90,"-b",label="90%")
+plt.plot(shuffle_intervals, indep_theo95,"-g",label="95%")
+plt.plot(shuffle_intervals, indep_theo99,"-k",label="99%")
 plt.plot(shuffle_intervals, indep_values, 'ro')
 plt.axis([0, 40, 0, indep_y_max])
 plt.legend()
