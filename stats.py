@@ -33,8 +33,7 @@ class TestSeries:
 		
 		res = 0.0
 		for e in counts:
-#			print("Observed: "+str(e)+" Expected: "+str(expectedCount))
-			if e!=0:
+			if e != 0:
 				tmp = e - expectedCount
 				tmp = (tmp * tmp) / expectedCount
 				res += tmp
@@ -86,8 +85,7 @@ class TestSeries:
 				expectedCount = (observedCount1 * observedCount2)/pairCount;
 				
 				if expectedCount != 0:
-					if observedCount!=0:
-#						print("Observed: "+str(observedCount)+" Expected: "+str(expectedCount))
+					if observedCount != 0:
 						res += (observedCount - expectedCount) * (observedCount - expectedCount) / expectedCount;
 		
 		print("Computed chi² independence value: " + str(res))
@@ -105,6 +103,7 @@ else:
 dist_values = []
 indep_values = []
 shuffle_intervals = []
+ddl = 0
 
 print(str(len(os.listdir(foldername))) + " files in this folder. Only CSV files will be read.")
 for filename in os.listdir(foldername):
@@ -114,59 +113,51 @@ for filename in os.listdir(foldername):
 		indep_values.append(ts.testIndependence())
 		shuffle_intervals.append(ts.shuffle_interval)
 
-ddl = ts.getDegreeOfFreedom()
+		ddl = ts.getDegreeOfFreedom()
 
-dist_theo90 = chi2.ppf(0.10, ddl)
-dist_theo95 = chi2.ppf(0.05, ddl)
-dist_theo99 = chi2.ppf(0.01, ddl)
-indep_theo90 = chi2.ppf(0.10, ddl * ddl)
-indep_theo95 = chi2.ppf(0.05, ddl * ddl)
-indep_theo99 = chi2.ppf(0.01, ddl * ddl)
+def dist_theoric(percent, values):
+	theo = chi2.ppf(1.0 - percent, ddl)
+	curv_theo = [theo] * len(values)
+	return curv_theo
 
-
-dist_y_max = max(dist_theo95, max(dist_values)) * 1.05
-indep_y_max = max(indep_theo95, max(indep_values)) * 1.05
-
-print('')
-print("Theoric distribution value (95%): " + str(dist_theo95))
-print("Mean Χ² statistic for distribution: " + str(mean(dist_values)))
-print('')
-print("Theoric independance value (95%): " + str(indep_theo95))
-print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
-
-# Tracer les graphes
-
-dist_theo90 = [dist_theo90] * len(dist_values)
-dist_theo95 = [dist_theo95] * len(dist_values)
-dist_theo99 = [dist_theo99] * len(dist_values)
-indep_theo90 = [indep_theo90] * len(indep_values)
-indep_theo95 = [indep_theo95] * len(indep_values)
-indep_theo99 = [indep_theo99] * len(indep_values)
-
+def indep_theoric(percent, values):
+	theo = chi2.ppf(1.0 - percent, ddl * ddl)
+	curv_theo = [theo] * len(values)
+	return curv_theo
 
 print("***********************************************************************")
 
-plt.plot(shuffle_intervals, dist_theo90,"-b",label="90%")
-plt.plot(shuffle_intervals, dist_theo95,"-g",label="95%")
-plt.plot(shuffle_intervals, dist_theo99,"-k",label="99%")
-plt.plot(shuffle_intervals, dist_values, 'ro')
-plt.axis([0, 40, 0, dist_y_max])
-plt.legend()
-plt.title("Test de distribution/homogénéité")
-plt.xlabel("Nombre de shuffles entre chaque getPeer")
-plt.ylabel("Valeur statistique")
-plt.show()
+# Tracer les graphes
 
-plt.plot(shuffle_intervals, indep_theo90,"-b",label="90%")
-plt.plot(shuffle_intervals, indep_theo95,"-g",label="95%")
-plt.plot(shuffle_intervals, indep_theo99,"-k",label="99%")
-plt.plot(shuffle_intervals, indep_values, 'ro')
-plt.axis([0, 40, 0, indep_y_max])
-plt.legend()
-plt.title("Test d'indépendance")
-plt.xlabel("Nombre de shuffles entre chaque getPeer")
-plt.ylabel("Valeur statistique")
-plt.show()
+if len(dist_values) > 0:
+	print('')
+	print("Theoric distribution value (95%): " + str(dist_theoric(0.95, dist_values)))
+	print("Mean Χ² statistic for distribution: " + str(mean(dist_values)))
+
+	plt.plot(shuffle_intervals, dist_theoric(0.90, dist_values), '-b', label="90%")
+	plt.plot(shuffle_intervals, dist_theoric(0.95, dist_values), '-g', label="95%")
+	plt.plot(shuffle_intervals, dist_theoric(0.99, dist_values), '-k', label="99%")
+	plt.plot(shuffle_intervals, dist_values, 'ro')
+	plt.legend()
+	plt.title("Test de distribution/homogénéité")
+	plt.xlabel("Nombre de shuffles entre chaque getPeer")
+	plt.ylabel("Valeur statistique")
+	plt.show()
+
+if len(indep_values) > 0:
+	print('')
+	print("Theoric independence value (95%): " + str(indep_theoric(0.95, indep_values)))
+	print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
+
+	plt.plot(shuffle_intervals, indep_theoric(0.90, indep_values), '-b', label="90%")
+	plt.plot(shuffle_intervals, indep_theoric(0.95, indep_values), '-g', label="95%")
+	plt.plot(shuffle_intervals, indep_theoric(0.99, indep_values), '-k', label="99%")
+	plt.plot(shuffle_intervals, indep_values, 'ro')
+	plt.legend()
+	plt.title("Test d'indépendance")
+	plt.xlabel("Nombre de shuffles entre chaque getPeer")
+	plt.ylabel("Valeur statistique")
+	plt.show()
 
 
 
