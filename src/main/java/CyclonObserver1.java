@@ -2,6 +2,7 @@ import cyclon.Cyclon;
 import observers.DictGraph;
 import observers.ObserverProgram;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 
@@ -39,15 +40,14 @@ public class CyclonObserver1 implements ObserverProgram {
             if(initialized){
                 observe(currentTick,observer);
             }else{
-                checkInit(observer);
+                checkInit(currentTick);
             }
         }
     }
 
-    private void checkInit(DictGraph observer)
+    private void checkInit(long currentTick)
     {
-        List<Node> partialView = ((Cyclon) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
-        if(partialView.size() == cacheSize){
+        if (currentTick > 100) {
             initialized = true;
         }
     }
@@ -66,8 +66,7 @@ public class CyclonObserver1 implements ObserverProgram {
     }
 
     private int getRandomFromNodes(List<Node> nodes){
-        Random rng = new Random();
-        return nodes.get(rng.nextInt(nodes.size())).getIndex();
+        return nodes.get(CommonState.r.nextInt(nodes.size())).getIndex();
     }
 
     public void onLastTick(DictGraph observer) {

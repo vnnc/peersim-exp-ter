@@ -40,15 +40,14 @@ public class CyclonObserver2 implements ObserverProgram {
             if(initialized){
                 observe(currentTick,observer);
             }else{
-                checkInit(observer);
+                checkInit(currentTick);
             }
         }
     }
 
-    private void checkInit(DictGraph observer)
+    private void checkInit(long currentTick)
     {
-        List<Node> partialView = ((Cyclon) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
-        if(partialView.size() == cacheSize){
+        if (currentTick > 100) {
             initialized = true;
         }
     }

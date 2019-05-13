@@ -1,6 +1,7 @@
 import observers.DictGraph;
 import observers.ObserverProgram;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import spray.Spray;
@@ -41,15 +42,14 @@ public class SprayObserver1 implements ObserverProgram {
             if(initialized){
                 observe(currentTick,observer);
             }else{
-                checkInit(observer);
+                checkInit(currentTick);
             }
         }
     }
 
-    private void checkInit(DictGraph observer)
+    private void checkInit(long currentTick)
     {
-        List<Node> partialView = ((Spray) observer.nodes.get(Network.get(0).getID()).pss).getPeers(Integer.MAX_VALUE);
-        if(partialView.size() > 1){
+        if (currentTick > 100) {
             initialized = true;
         }
     }
@@ -69,8 +69,7 @@ public class SprayObserver1 implements ObserverProgram {
     }
 
     private int getRandomFromNodes(List<Node> nodes){
-        Random rng = new Random();
-        return nodes.get(rng.nextInt(nodes.size())).getIndex();
+        return nodes.get(CommonState.r.nextInt(nodes.size())).getIndex();
     }
 
     public void onLastTick(DictGraph observer) {
