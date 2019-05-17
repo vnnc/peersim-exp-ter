@@ -1,24 +1,12 @@
 #!/usr/bin/env python3
 
 import os, sys, csv, pandas
-import matplotlib.pyplot as plt
-from statistics import mean
-
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html
-from scipy.stats import chi2
-
-################################################################################
-
-# Une proba de 90% avec 20 degrés de liberté :
-#print( chi2.ppf(0.90, 20) )
-
-#  NETSIZE,NB_CYCLES,SHUFFLE_INTERVAL,PEERID
 
 ################################################################################
 
 class TestSeries:
 	def __init__(self, path):
-		filedata = pandas.read_csv(path,sep=',')
+		filedata = pandas.read_csv(path, sep=',')
 		self.net_size = filedata['NETSIZE'][0]
 		self.nb_cycles = filedata['NB_CYCLES'][0]
 		self.shuffle_interval = filedata['SHUFFLE_INTERVAL'][0] # varie d'un fichier à l'autre
@@ -90,6 +78,12 @@ class TestSeries:
 		
 		print("Computed chi² independence value: " + str(res))
 		return res
+	
+	def get_csv_line(self):
+		return str(self.testDistribution()) + ',' + \
+		       str(self.testIndependence()) + ',' + \
+		       str(self.shuffle_interval) + ',' + \
+		       str(self.getDegreeOfFreedom()) + '\n'
 
 ################################################################################
 
@@ -100,88 +94,14 @@ if len(sys.argv) == 1:
 else:
 	foldername = sys.argv[1]
 
-dist_values = []
-indep_values = []
-shuffle_intervals = []
-ddl = 0
-
 print(str(len(os.listdir(foldername))) + " files in this folder. Only CSV files will be read.")
+f = open("stats.csv", 'w+')
+f.write('DIST_VALUE,INDEP_VALUE,SHUFFLE_INTERVAL,DOF\n')
 for filename in os.listdir(foldername):
 	if filename.endswith('.csv'):
 		ts = TestSeries(foldername + filename)
-		dist_values.append(ts.testDistribution())
-		indep_values.append(ts.testIndependence())
-		shuffle_intervals.append(ts.shuffle_interval)
-
-		ddl = ts.getDegreeOfFreedom()
-
-def dist_theoric(percent, values):
-	theo = chi2.ppf(percent, ddl)
-	curv_theo = [theo] * len(values)
-	return curv_theo
-
-def indep_theoric(percent, values):
-	theo = chi2.ppf(percent, ddl * ddl)
-	curv_theo = [theo] * len(values)
-	return curv_theo
-
-simax = max(shuffle_intervals)
-
-mdist = []
-for i in range(1,simax):
-    count=0
-    res=0
-    for (k,v) in enumerate(shuffle_intervals):
-        if v==i:
-            count=count+1
-            res=res+dist_values[k]
-    res=res/count
-    mdist.append(res)
-
-mindep = []
-for i in range(1,simax):
-    count=0
-    res=0
-    for (k,v) in enumerate(shuffle_intervals):
-        if v==i:
-            count=count+1
-            res=res+indep_values[k]
-    res=res/count
-    mindep.append(res)
-
-shuffle_intervals = range(1,simax)
-
-print("***********************************************************************")
-
-# Tracer les graphes
-
-if len(dist_values) > 0:
-	print('')
-	print("Theoric distribution value (95%): " + str(dist_theoric(0.95, dist_values)))
-	print("Mean Χ² statistic for distribution: " + str(mean(dist_values)))
-	plt.plot(shuffle_intervals, dist_theoric(0.90, dist_values)[0:simax-1], '-b', label="90%")
-	plt.plot(shuffle_intervals, dist_theoric(0.95, dist_values)[0:simax-1], '-g', label="95%")
-	plt.plot(shuffle_intervals, dist_theoric(0.99, dist_values)[0:simax-1], '-k', label="99%")
-	plt.plot(shuffle_intervals, mdist, 'ro')
-	plt.legend()
-	plt.title("Test de distribution/homogénéité")
-	plt.xlabel("Nombre de shuffles entre chaque getPeer")
-	plt.ylabel("Valeur statistique")
-	plt.show()
-
-if len(indep_values) > 0:
-	print('')
-	print("Theoric independence value (95%): " + str(indep_theoric(0.95, indep_values)))
-	print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
-	plt.plot(shuffle_intervals, indep_theoric(0.90, indep_values)[0:simax-1], '-b', label="90%")
-	plt.plot(shuffle_intervals, indep_theoric(0.95, indep_values)[0:simax-1], '-g', label="95%")
-	plt.plot(shuffle_intervals, indep_theoric(0.99, indep_values)[0:simax-1], '-k', label="99%")
-	plt.plot(shuffle_intervals, mindep, 'ro')
-	plt.legend()
-	plt.title("Test d'indépendance")
-	plt.xlabel("Nombre de shuffles entre chaque getPeer")
-	plt.ylabel("Valeur statistique")
-	plt.show()
-
+		f.write(ts.get_csv_line())
+f.close()
+print("Data written in stats.csv")
 
 
