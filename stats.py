@@ -116,14 +116,40 @@ for filename in os.listdir(foldername):
 		ddl = ts.getDegreeOfFreedom()
 
 def dist_theoric(percent, values):
-	theo = chi2.ppf(1.0 - percent, ddl)
+	theo = chi2.ppf(percent, ddl)
 	curv_theo = [theo] * len(values)
 	return curv_theo
 
 def indep_theoric(percent, values):
-	theo = chi2.ppf(1.0 - percent, ddl * ddl)
+	theo = chi2.ppf(percent, ddl * ddl)
 	curv_theo = [theo] * len(values)
 	return curv_theo
+
+simax = max(shuffle_intervals)
+
+mdist = []
+for i in range(1,simax):
+    count=0
+    res=0
+    for (k,v) in enumerate(shuffle_intervals):
+        if v==i:
+            count=count+1
+            res=res+dist_values[k]
+    res=res/count
+    mdist.append(res)
+
+mindep = []
+for i in range(1,simax):
+    count=0
+    res=0
+    for (k,v) in enumerate(shuffle_intervals):
+        if v==i:
+            count=count+1
+            res=res+indep_values[k]
+    res=res/count
+    mindep.append(res)
+
+shuffle_intervals = range(1,simax)
 
 print("***********************************************************************")
 
@@ -133,11 +159,10 @@ if len(dist_values) > 0:
 	print('')
 	print("Theoric distribution value (95%): " + str(dist_theoric(0.95, dist_values)))
 	print("Mean Χ² statistic for distribution: " + str(mean(dist_values)))
-
-	plt.plot(shuffle_intervals, dist_theoric(0.90, dist_values), '-b', label="90%")
-	plt.plot(shuffle_intervals, dist_theoric(0.95, dist_values), '-g', label="95%")
-	plt.plot(shuffle_intervals, dist_theoric(0.99, dist_values), '-k', label="99%")
-	plt.plot(shuffle_intervals, dist_values, 'ro')
+	plt.plot(shuffle_intervals, dist_theoric(0.90, dist_values)[0:simax-1], '-b', label="90%")
+	plt.plot(shuffle_intervals, dist_theoric(0.95, dist_values)[0:simax-1], '-g', label="95%")
+	plt.plot(shuffle_intervals, dist_theoric(0.99, dist_values)[0:simax-1], '-k', label="99%")
+	plt.plot(shuffle_intervals, mdist, 'ro')
 	plt.legend()
 	plt.title("Test de distribution/homogénéité")
 	plt.xlabel("Nombre de shuffles entre chaque getPeer")
@@ -148,11 +173,10 @@ if len(indep_values) > 0:
 	print('')
 	print("Theoric independence value (95%): " + str(indep_theoric(0.95, indep_values)))
 	print("Mean Χ² statistic for independence: " + str(mean(indep_values)))
-
-	plt.plot(shuffle_intervals, indep_theoric(0.90, indep_values), '-b', label="90%")
-	plt.plot(shuffle_intervals, indep_theoric(0.95, indep_values), '-g', label="95%")
-	plt.plot(shuffle_intervals, indep_theoric(0.99, indep_values), '-k', label="99%")
-	plt.plot(shuffle_intervals, indep_values, 'ro')
+	plt.plot(shuffle_intervals, indep_theoric(0.90, indep_values)[0:simax-1], '-b', label="90%")
+	plt.plot(shuffle_intervals, indep_theoric(0.95, indep_values)[0:simax-1], '-g', label="95%")
+	plt.plot(shuffle_intervals, indep_theoric(0.99, indep_values)[0:simax-1], '-k', label="99%")
+	plt.plot(shuffle_intervals, mindep, 'ro')
 	plt.legend()
 	plt.title("Test d'indépendance")
 	plt.xlabel("Nombre de shuffles entre chaque getPeer")
